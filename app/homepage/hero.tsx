@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 
 export default function Hero() {
     return (
-        <section id="hero" className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
+        <section id="hero" className="w-full py-10 md:py-20 lg:py-28 xl:py-44">
             <div className="container mx-auto px-4 py-24 md:py-32 lg:py-40 relative">
                 <div className="flex flex-col items-center space-y-4 text-center">
                     <div className="space-y-2">
