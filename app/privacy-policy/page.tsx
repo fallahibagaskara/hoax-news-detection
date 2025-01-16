@@ -7,7 +7,7 @@ export default function PrivacyPolicyPage() {
     <div className="container mx-auto px-4 py-8">
       <Button asChild variant="ghost" className="mb-6">
         <Link href="/">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Kembali ke Beranda
+          <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
         </Link>
       </Button>
       <h1 className="text-3xl font-bold mb-6">Kebijakan Privasi</h1>

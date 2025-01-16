@@ -38,7 +38,7 @@ export default function CheckNewsPage() {
     <div className="container mx-auto px-4 py-8">
       <Button asChild variant="ghost" className="mb-6">
         <Link href="/">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Kembali ke Beranda
+          <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
         </Link>
       </Button>
       <Card className="max-w-7xl mx-auto">
