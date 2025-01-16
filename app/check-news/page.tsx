@@ -41,7 +41,7 @@ export default function CheckNewsPage() {
           <ArrowLeft className="mr-2 h-4 w-4" /> Kembali ke Beranda
         </Link>
       </Button>
-      <Card className="max-w-2xl mx-auto">
+      <Card className="max-w-7xl mx-auto">
         <CardHeader>
           <CardTitle>Cek Berita</CardTitle>
           <CardDescription>Masukkan judul artikel berita yang ingin Anda periksa untuk mengetahui kemungkinan adanya hoaks.</CardDescription>
@@ -62,14 +62,14 @@ export default function CheckNewsPage() {
           </form>
         </CardContent>
         <CardFooter className="flex justify-between">
-          <Button variant="outline" onClick={() => setNewsTitle('')}>Clear</Button>
+          <Button variant="outline" onClick={() => setNewsTitle('')}>Hapus</Button>
           <Button onClick={handleSubmit} disabled={isLoading || newsTitle.trim() === ''}>
-            {isLoading ? <Spinner className="mr-2 h-4 w-4" /> : 'Cek Berita'}
+            {isLoading ? <Spinner /> : 'Cek Berita'}
           </Button>
         </CardFooter>
       </Card>
       {isLoading && (
-        <Card className="mt-8 max-w-2xl mx-auto">
+        <Card className="mt-8 max-w-7xl mx-auto">
           <CardHeader>
             <CardTitle>Menganalisis...</CardTitle>
           </CardHeader>
@@ -80,7 +80,7 @@ export default function CheckNewsPage() {
         </Card>
       )}
       {result && (
-        <Card className="mt-8 max-w-2xl mx-auto">
+        <Card className="mt-8 max-w-7xl mx-auto">
           <CardHeader>
             <CardTitle>Hasil Analisis</CardTitle>
           </CardHeader>
