@@ -8,10 +8,10 @@ export default function Hero() {
                 <div className="flex flex-col items-center space-y-4 text-center">
                     <div className="space-y-2">
                         <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
-                            Deteksi Hoaks dengan AI
+                            Deteksi Indikasi Hoaks, Berbasis Pola Bahasa
                         </h1>
                         <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-                            Sistem AI kami yang canggih membantu Anda mengidentifikasi dan memerangi informasi yang salah. Tetap terinformasi dengan berita yang akurat.
+                            Membantu Anda mengidentifikasi kemungkinan hoaks dari berita menggunakan model IndoBERT terlatih. Hasil bersifat probabilistik—bukan vonis final.
                         </p>
                     </div>
                     <div className="w-full max-w-sm space-y-4">
@@ -20,7 +20,7 @@ export default function Hero() {
                                 <Link href="/check-news">Cek Berita</Link>
                             </Button>
                             <Button className="w-full sm:w-auto" variant="outline" asChild>
-                                <Link href="/recent-hoaxes">Lihat Hoaks Berita Terbaru</Link>
+                                <Link href="/recent-hoaxes">Lihat Berita Hoaks Terbaru</Link>
                             </Button>
                         </div>
                     </div>
