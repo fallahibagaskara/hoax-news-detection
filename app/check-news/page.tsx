@@ -41,7 +41,6 @@ const SUPPORTED_DOMAINS = [
   'detik.com',
   'liputan6.com',
   'tribunnews.com',
-  'turnbackhoax.id',
 ]
 
 // Helpers
