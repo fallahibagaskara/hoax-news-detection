@@ -20,7 +20,8 @@ type PredictRespUrl = {
   p_hoax: number
   source: string     // domain
   extracted_chars: number
-  preview: string
+  title: string
+  content: string
 }
 
 type PredictRespText = {
@@ -41,6 +42,7 @@ const SUPPORTED_DOMAINS = [
   'detik.com',
   'liputan6.com',
   'tribunnews.com',
+  'kumparan.com',
 ]
 
 // Helpers
@@ -250,8 +252,10 @@ export default function CheckNewsPage() {
             <Progress value={confidencePct} className="w-full mb-2" />
             <p className="mb-4">Keyakinan: {confidencePct}%</p>
             <div className="text-sm text-muted-foreground">
-              Cuplikan artikel:
-              <blockquote className="mt-2 p-3 bg-muted rounded-lg">{resultUrl.preview}</blockquote>
+              Judul artikel:
+              <blockquote className="mt-2 p-3 bg-muted rounded-lg">{resultUrl.title}</blockquote>
+              Isi artikel:
+              <blockquote className="mt-2 p-3 bg-muted rounded-lg">{resultUrl.content}</blockquote>
             </div>
           </CardContent>
         </Card>
