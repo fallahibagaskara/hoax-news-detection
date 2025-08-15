@@ -15,10 +15,10 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 
 type PredictRespUrl = {
-  label: number      // 0=valid, 1=hoax
+  label: number
   p_valid: number
   p_hoax: number
-  source: string     // domain
+  source: string
   extracted_chars: number
   title: string
   content: string
@@ -34,7 +34,6 @@ type Mode = 'url' | 'text'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://127.0.0.1:8000'
 
-// Hardcode daftar situs yang didukung (FE)
 const SUPPORTED_DOMAINS = [
   'kompas.com',
   'cnnindonesia.com',
@@ -55,6 +54,7 @@ function getHost(urlStr: string): string | null {
     return null
   }
 }
+
 function isSupportedHost(host: string): boolean {
   return SUPPORTED_DOMAINS.some(d => host === d || host.endsWith('.' + d))
 }
