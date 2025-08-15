@@ -7,7 +7,7 @@ import Footer from '@/components/ui/footer'
 export default function LandingPage() {
   return (
     <>
-      <div className="min-h-screen w-full bg-white relative">
+      <div className="min-h-screen w-full bg-white relative overflow-x-hidden">
         <div
           className="fixed inset-0 z-0 pointer-events-none"
           style={{
