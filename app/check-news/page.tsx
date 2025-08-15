@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Gauge, Timer, FileText as FileTextIcon, ShieldAlert, ShieldCheck } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -59,6 +59,20 @@ function isSupportedHost(host: string): boolean {
   return SUPPORTED_DOMAINS.some(d => host === d || host.endsWith('.' + d))
 }
 
+function countSentences(txt: string): number {
+  // rough heuristic: split by ., !, ?, and newlines; filter out short fragments
+  return (txt || '')
+    .split(/[\.\!\?\n]+/g)
+    .map(s => s.trim())
+    .filter(s => s.length > 3).length
+}
+
+function formatMs(ms: number | null): string {
+  if (!ms || ms <= 0) return '—'
+  if (ms < 1000) return `${Math.round(ms)} ms`
+  return `${(ms / 1000).toFixed(1)} s`
+}
+
 export default function CheckNewsPage() {
   const [mode, setMode] = useState<Mode>('url')
 
@@ -71,22 +85,40 @@ export default function CheckNewsPage() {
   const [resultUrl, setResultUrl] = useState<PredictRespUrl | null>(null)
   const [resultText, setResultText] = useState<PredictRespText | null>(null)
 
+  // New: client-side timing
+  const [latencyMs, setLatencyMs] = useState<number | null>(null)
+
   const canSubmit = useMemo(() => {
     return mode === 'url' ? url.trim().length > 0 : text.trim().length > 0
   }, [mode, url, text])
 
+  const activeResult = mode === 'url' ? resultUrl : resultText
+
   const confidencePct = useMemo(() => {
-    const r = mode === 'url' ? resultUrl : resultText
+    const r = activeResult
     if (!r) return 0
-    const isHoax = r.label === 1
-    const prob = isHoax ? r.p_hoax : r.p_valid
+    const isHoaxLocal = r.label === 1
+    const prob = isHoaxLocal ? r.p_hoax : r.p_valid
     return Math.round(prob * 100)
-  }, [mode, resultUrl, resultText])
+  }, [activeResult])
+
+  const hoaxScorePct = useMemo(() => {
+    const r = activeResult
+    if (!r) return 0
+    return Math.round((r as any).p_hoax * 100)
+  }, [activeResult])
 
   const isHoax = useMemo(() => {
-    const r = mode === 'url' ? resultUrl : resultText
+    const r = activeResult
     return r ? r.label === 1 : false
-  }, [mode, resultUrl, resultText])
+  }, [activeResult])
+
+  const sentenceCount = useMemo(() => {
+    if (mode === 'url') {
+      return resultUrl?.content ? countSentences(resultUrl.content) : 0
+    }
+    return text ? countSentences(text) : 0
+  }, [mode, resultUrl, text])
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault()
@@ -94,7 +126,9 @@ export default function CheckNewsPage() {
     setError(null)
     setResultUrl(null)
     setResultText(null)
+    setLatencyMs(null)
 
+    const t0 = performance.now()
     try {
       if (mode === 'url') {
         const host = getHost(url)
@@ -129,8 +163,10 @@ export default function CheckNewsPage() {
         const data: PredictRespText = await res.json()
         setResultText(data)
       }
+      setLatencyMs(performance.now() - t0)
     } catch (err: any) {
       setError(err?.message || 'Gagal memanggil API.')
+      setLatencyMs(performance.now() - t0)
     } finally {
       setIsLoading(false)
     }
@@ -142,20 +178,21 @@ export default function CheckNewsPage() {
     setResultUrl(null)
     setResultText(null)
     setError(null)
+    setLatencyMs(null)
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Button asChild variant="ghost" className="mb-6">
+    <div className="container mx-auto px-6 sm:px-8 lg:px-12 py-8">
+      <Button asChild variant="ghost" className="mb-6 rounded-xl">
         <Link href="/">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
+          <ArrowLeft className="mr-2 h-5 w-5" /> Kembali
         </Link>
       </Button>
 
-      <Card className="max-w-7xl mx-auto">
+      <Card className="max-w-7xl mx-auto rounded-2xl border bg-white/70 backdrop-blur-md dark:bg-white/10">
         <CardHeader>
           <CardTitle>Cek Artikel Berita</CardTitle>
-          <CardDescription>Pilih salah satu: tempel URL artikel berita dari situs yang didukung, atau masukkan isi artikel berita langsung.</CardDescription>
+          <CardDescription>Pilih salah satu: tempel URL dari situs yang didukung, atau masukkan isi artikel langsung.</CardDescription>
         </CardHeader>
 
         <CardContent>
@@ -173,7 +210,7 @@ export default function CheckNewsPage() {
                     <Label htmlFor="newsUrl">Tautan Artikel Berita</Label>
                     <Input
                       id="newsUrl"
-                      placeholder="Contoh: https://www.kompas.com/cekfakta/read/2024/07/22/184000382/..."
+                      placeholder="https://www.kompas.com/cekfakta/read/2024/..."
                       value={url}
                       onChange={(e) => setUrl(e.target.value)}
                     />
@@ -212,50 +249,98 @@ export default function CheckNewsPage() {
         </CardContent>
 
         <CardFooter className="flex justify-between">
-          <Button variant="outline" onClick={resetAll}>Hapus</Button>
-          <Button onClick={() => handleSubmit()} disabled={isLoading || !canSubmit}>
+          <Button variant="outline" onClick={resetAll} className="rounded-xl">Hapus</Button>
+          <Button onClick={() => handleSubmit()} disabled={isLoading || !canSubmit} className="rounded-xl">
             {isLoading ? <Spinner /> : 'Cek Artikel Berita'}
           </Button>
         </CardFooter>
       </Card>
 
       {isLoading && (
-        <Card className="mt-8 max-w-7xl mx-auto">
-          <CardHeader><CardTitle>Menganalisis...</CardTitle></CardHeader>
+        <Card className="mt-8 max-w-7xl mx-auto rounded-2xl border bg-white/70 backdrop-blur-md dark:bg-white/10">
+          <CardHeader><CardTitle>Menganalisis…</CardTitle></CardHeader>
           <CardContent>
             <Progress value={66} className="w-full" />
-            <p className="text-center mt-4">Mengambil & menganalisis konten…</p>
+            <p className="text-center mt-4 text-sm text-muted-foreground">Mengambil & menganalisis konten…</p>
+            {/* live micro-metrics while loading */}
+            <div className="mt-4 grid grid-cols-3 gap-3">
+              <div className="rounded-lg border bg-white/60 p-3 text-center backdrop-blur dark:bg-white/10">
+                <div className="text-xs text-muted-foreground">Skor Hoaks</div>
+                <div className="text-sm font-semibold">—</div>
+              </div>
+              <div className="rounded-lg border bg-white/60 p-3 text-center backdrop-blur dark:bg-white/10">
+                <div className="text-xs text-muted-foreground">Kalimat Dicek</div>
+                <div className="text-sm font-semibold">
+                  {mode === 'url' ? '—' : countSentences(text)}
+                </div>
+              </div>
+              <div className="rounded-lg border bg-white/60 p-3 text-center backdrop-blur dark:bg-white/10">
+                <div className="text-xs text-muted-foreground">Waktu</div>
+                <div className="text-sm font-semibold">{formatMs(latencyMs)}</div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       )}
 
       {error && (
-        <Card className="mt-8 max-w-7xl mx-auto border-red-500">
+        <Card className="mt-8 max-w-7xl mx-auto rounded-2xl border-red-200 bg-red-50/80 dark:bg-red-400/10">
           <CardHeader><CardTitle className="text-red-600">Terjadi Kesalahan</CardTitle></CardHeader>
-          <CardContent><p className="text-red-500 whitespace-pre-wrap">{error}</p></CardContent>
+          <CardContent><p className="text-red-600 whitespace-pre-wrap">{error}</p></CardContent>
         </Card>
       )}
 
       {/* Hasil (mode URL) */}
       {resultUrl && !error && mode === 'url' && (
-        <Card className="mt-8 max-w-7xl mx-auto">
+        <Card className="mt-8 max-w-7xl mx-auto rounded-2xl border bg-white/70 backdrop-blur-md dark:bg-white/10">
           <CardHeader>
-            <CardTitle>Hasil Analisis</CardTitle>
-            <CardDescription>
-              Sumber: {resultUrl.source} · Teks terekstrak: {resultUrl.extracted_chars} karakter
-            </CardDescription>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <CardTitle>Hasil Analisis</CardTitle>
+                <CardDescription>
+                  Sumber: {resultUrl.source} · Teks terekstrak: {resultUrl.extracted_chars.toLocaleString()} karakter
+                </CardDescription>
+              </div>
+              <Badge variant={isHoax ? 'destructive' : 'success'} className="rounded-full px-3 py-1 text-xs">
+                {isHoax ? <ShieldAlert className="mr-1 h-3.5 w-3.5" /> : <ShieldCheck className="mr-1 h-3.5 w-3.5" />}
+                {isHoax ? 'Prediksi: Hoaks' : 'Prediksi: Valid'}
+              </Badge>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className={`text-lg font-semibold mb-2 ${isHoax ? 'text-red-500' : 'text-green-500'}`}>
-              Artikel berita ini kemungkinan besar {isHoax ? 'hoaks' : 'bukan hoaks'}.
+            <div className="mb-2 text-lg font-semibold">
+              Artikel berita ini kemungkinan besar {isHoax ? <span className="text-red-600">hoaks</span> : <span className="text-emerald-600">bukan hoaks</span>}.
             </div>
+
+            {/* Confidence bar */}
             <Progress value={confidencePct} className="w-full mb-2" />
-            <p className="mb-4">Keyakinan: {confidencePct}%</p>
+            <p className="mb-4 text-sm text-muted-foreground">Keyakinan: {confidencePct}%</p>
+
+            {/* Micro-metrics (match hero) */}
+            <div className="mb-6 grid grid-cols-3 gap-3">
+              <div className="rounded-lg border bg-white/60 p-3 text-center backdrop-blur dark:bg-white/10">
+                <div className="mx-auto mb-1 flex h-6 w-6 items-center justify-center rounded bg-emerald-500/10"><Gauge className="h-3.5 w-3.5" /></div>
+                <div className="text-xs text-muted-foreground">Skor Hoaks</div>
+                <div className="text-sm font-semibold">{hoaxScorePct}%</div>
+              </div>
+              <div className="rounded-lg border bg-white/60 p-3 text-center backdrop-blur dark:bg-white/10">
+                <div className="mx-auto mb-1 flex h-6 w-6 items-center justify-center rounded bg-sky-500/10"><FileTextIcon className="h-3.5 w-3.5" /></div>
+                <div className="text-xs text-muted-foreground">Kalimat Dicek</div>
+                <div className="text-sm font-semibold">{sentenceCount}</div>
+              </div>
+              <div className="rounded-lg border bg-white/60 p-3 text-center backdrop-blur dark:bg-white/10">
+                <div className="mx-auto mb-1 flex h-6 w-6 items-center justify-center rounded bg-amber-500/10"><Timer className="h-3.5 w-3.5" /></div>
+                <div className="text-xs text-muted-foreground">Waktu</div>
+                <div className="text-sm font-semibold">{formatMs(latencyMs)}</div>
+              </div>
+            </div>
+
+            {/* Content preview */}
             <div className="text-sm text-muted-foreground">
               Judul artikel berita:
               <blockquote className="mt-2 p-3 bg-muted rounded-lg">{resultUrl.title}</blockquote>
               Konten artikel berita:
-              <blockquote className="mt-2 p-3 bg-muted rounded-lg">{resultUrl.content}</blockquote>
+              <blockquote className="mt-2 p-3 bg-muted rounded-lg whitespace-pre-wrap">{resultUrl.content}</blockquote>
             </div>
           </CardContent>
         </Card>
@@ -263,14 +348,42 @@ export default function CheckNewsPage() {
 
       {/* Hasil (mode TEXT) */}
       {resultText && !error && mode === 'text' && (
-        <Card className="mt-8 max-w-7xl mx-auto">
-          <CardHeader><CardTitle>Hasil Analisis</CardTitle></CardHeader>
+        <Card className="mt-8 max-w-7xl mx-auto rounded-2xl border bg-white/70 backdrop-blur-md dark:bg-white/10">
+          <CardHeader>
+            <div className="flex items-start justify-between gap-3">
+              <CardTitle>Hasil Analisis</CardTitle>
+              <Badge variant={isHoax ? 'destructive' : 'default'} className="rounded-full px-3 py-1 text-xs">
+                {isHoax ? <ShieldAlert className="mr-1 h-3.5 w-3.5" /> : <ShieldCheck className="mr-1 h-3.5 w-3.5" />}
+                {isHoax ? 'Prediksi: Hoaks' : 'Prediksi: Valid'}
+              </Badge>
+            </div>
+          </CardHeader>
           <CardContent>
-            <div className={`text-lg font-semibold mb-2 ${isHoax ? 'text-red-500' : 'text-green-500'}`}>
+            <div className={`text-lg font-semibold mb-2 ${isHoax ? 'text-red-600' : 'text-emerald-600'}`}>
               Teks ini kemungkinan besar {isHoax ? 'hoaks' : 'bukan hoaks'}.
             </div>
             <Progress value={confidencePct} className="w-full mb-2" />
-            <p className="mb-4">Keyakinan: {confidencePct}%</p>
+            <p className="mb-4 text-sm text-muted-foreground">Keyakinan: {confidencePct}%</p>
+
+            {/* Micro-metrics */}
+            <div className="mb-4 grid grid-cols-3 gap-3">
+              <div className="rounded-lg border bg-white/60 p-3 text-center backdrop-blur dark:bg-white/10">
+                <div className="mx-auto mb-1 flex h-6 w-6 items-center justify-center rounded bg-emerald-500/10"><Gauge className="h-3.5 w-3.5" /></div>
+                <div className="text-xs text-muted-foreground">Skor Hoaks</div>
+                <div className="text-sm font-semibold">{hoaxScorePct}%</div>
+              </div>
+              <div className="rounded-lg border bg-white/60 p-3 text-center backdrop-blur dark:bg-white/10">
+                <div className="mx-auto mb-1 flex h-6 w-6 items-center justify-center rounded bg-sky-500/10"><FileTextIcon className="h-3.5 w-3.5" /></div>
+                <div className="text-xs text-muted-foreground">Kalimat Dicek</div>
+                <div className="text-sm font-semibold">{sentenceCount}</div>
+              </div>
+              <div className="rounded-lg border bg-white/60 p-3 text-center backdrop-blur dark:bg-white/10">
+                <div className="mx-auto mb-1 flex h-6 w-6 items-center justify-center rounded bg-amber-500/10"><Timer className="h-3.5 w-3.5" /></div>
+                <div className="text-xs text-muted-foreground">Waktu</div>
+                <div className="text-sm font-semibold">{formatMs(latencyMs)}</div>
+              </div>
+            </div>
+
             <p className="text-sm text-muted-foreground">
               {isHoax
                 ? 'Model mendeteksi pola khas hoaks/penipuan (ajakan, janji hadiah, klaim bombastis, dll).'
