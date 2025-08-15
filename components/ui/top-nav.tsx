@@ -32,8 +32,8 @@ export default function TopNav() {
     return (
         <header className="sticky top-4 z-50 w-full">
             {/* Floating glass container */}
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div className="flex h-16 items-center justify-between rounded-2xl border bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-lg px-6">
+            <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
+                <div className="flex h-16 items-center justify-between rounded-2xl border bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-lg px-2 md:px-6">
                     {/* Brand */}
                     <Link className="flex items-center gap-3 pl-3 sm:pl-4" href="/">
                         <span className="sr-only">Hoax Buster</span>
