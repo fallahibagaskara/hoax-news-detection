@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, SearchCheck, Newspaper, Link2, FileText } from "lucide-react"
+import { ArrowRight, SearchCheck, Newspaper, Link2, FileText, ShieldAlert, FileTextIcon, Timer, Gauge } from "lucide-react"
 
 export default function Hero() {
     return (
@@ -120,26 +120,37 @@ export default function Hero() {
                         {/* result snippet */}
                         <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
                             <div className="flex items-center gap-2">
-                                <SearchCheck className="h-4 w-4 text-emerald-600" />
+                                <ShieldAlert className="h-4 w-4 text-emerald-600" />
                                 <span className="text-sm font-semibold">Prediksi: Valid (74%)</span>
                             </div>
-                            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                            {/* <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                                 Sinyal bahasa provokatif rendah; sumber rujukan konsisten; struktur klaim faktual.
-                            </p>
+                            </p> */}
                         </div>
 
                         {/* micro-metrics */}
                         <div className="mt-4 grid grid-cols-3 gap-3">
-                            {[
-                                ["Skor Hoaks", "26%"],
-                                ["Kalimat Dicek", "18"],
-                                ["Waktu", "0.7s"],
-                            ].map(([label, value]) => (
-                                <div key={label} className="rounded-lg border border-white/20 bg-white/60 p-3 text-center backdrop-blur dark:bg-white/10">
-                                    <div className="text-xs text-muted-foreground">{label}</div>
-                                    <div className="text-sm font-semibold">{value}</div>
+                            <div className="rounded-lg border bg-white/60 p-3 text-center backdrop-blur dark:bg-white/10">
+                                <div className="mx-auto mb-1 flex h-6 w-6 items-center justify-center rounded bg-emerald-500/10">
+                                    <Gauge className="h-3.5 w-3.5 text-emerald-600" />
                                 </div>
-                            ))}
+                                <div className="text-xs text-muted-foreground">Skor Hoaks</div>
+                                <div className="text-sm font-semibold">0.26</div>
+                            </div>
+                            <div className="rounded-lg border bg-white/60 p-3 text-center backdrop-blur dark:bg-white/10">
+                                <div className="mx-auto mb-1 flex h-6 w-6 items-center justify-center rounded bg-sky-500/10">
+                                    <FileTextIcon className="h-3.5 w-3.5 text-sky-600" />
+                                </div>
+                                <div className="text-xs text-muted-foreground">Kalimat Dicek</div>
+                                <div className="text-sm font-semibold">18</div>
+                            </div>
+                            <div className="rounded-lg border bg-white/60 p-3 text-center backdrop-blur dark:bg-white/10">
+                                <div className="mx-auto mb-1 flex h-6 w-6 items-center justify-center rounded bg-amber-500/10">
+                                    <Timer className="h-3.5 w-3.5 text-amber-600" />
+                                </div>
+                                <div className="text-xs text-muted-foreground">Waktu</div>
+                                <div className="text-sm font-semibold">0.7s</div>
+                            </div>
                         </div>
                     </div>
 
