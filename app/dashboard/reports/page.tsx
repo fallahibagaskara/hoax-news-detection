@@ -11,7 +11,7 @@ const reports = [
   { id: 1, name: 'Monthly Summary', date: '2023-07-01', status: 'Completed' },
   { id: 2, name: 'Weekly Hoax Trends', date: '2023-07-07', status: 'Pending' },
   { id: 3, name: 'Top Hoax Sources', date: '2023-06-30', status: 'Completed' },
-  { id: 4, name: 'AI Model Performance', date: '2023-06-15', status: 'Completed' },
+  { id: 4, name: 'IndoBERT Model Performance', date: '2023-06-15', status: 'Completed' },
   { id: 5, name: 'User Activity Report', date: '2023-07-05', status: 'In Progress' },
 ]
 
@@ -19,7 +19,7 @@ export default function ReportsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
 
-  const filteredReports = reports.filter(report => 
+  const filteredReports = reports.filter(report =>
     report.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
     (statusFilter === 'all' || report.status === statusFilter)
   )

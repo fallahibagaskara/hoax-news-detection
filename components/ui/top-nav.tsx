@@ -49,14 +49,7 @@ export default function TopNav() {
                             Fitur
                         </Link>
                         <Link className="text-sm font-medium hover:underline underline-offset-4" href="#how-it-works">
-                            Bagaimana cara kerjanya
-                        </Link>
-                        <Link
-                            className={`text-sm font-medium hover:underline underline-offset-4 ${pathname === "/recent-hoaxes" ? "underline decoration-2" : ""
-                                }`}
-                            href="/recent-hoaxes"
-                        >
-                            Berita Hoaks Terbaru
+                            Cara Kerja
                         </Link>
                     </nav>
 
@@ -111,14 +104,7 @@ export default function TopNav() {
                         href="#how-it-works"
                         onClick={() => setOpen(false)}
                     >
-                        Bagaimana cara kerjanya
-                    </Link>
-                    <Link
-                        className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent"
-                        href="/recent-hoaxes"
-                        onClick={() => setOpen(false)}
-                    >
-                        Berita Hoaks Terbaru
+                        Cara Kerja
                     </Link>
                 </nav>
             </div>

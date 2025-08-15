@@ -79,7 +79,7 @@ export default function DashboardPage() {
           <CardContent className="space-y-4">
             <Button className="w-full">Run New Scan</Button>
             <Button className="w-full" variant="outline">Generate Report</Button>
-            <Button className="w-full" variant="outline">Update AI Model</Button>
+            <Button className="w-full" variant="outline">Update IndoBERT Model</Button>
           </CardContent>
         </Card>
       </div>
