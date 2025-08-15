@@ -115,7 +115,7 @@ export default function CheckNewsPage() {
         const data: PredictRespUrl = await res.json()
         setResultUrl(data)
       } else {
-        if (!text.trim()) throw new Error('Isi berita tidak boleh kosong.')
+        if (!text.trim()) throw new Error('Konten artikel berita tidak boleh kosong.')
 
         const res = await fetch(`${API_BASE}/predict`, {
           method: 'POST',
@@ -154,15 +154,15 @@ export default function CheckNewsPage() {
 
       <Card className="max-w-7xl mx-auto">
         <CardHeader>
-          <CardTitle>Cek Berita</CardTitle>
-          <CardDescription>Pilih salah satu: tempel URL artikel dari situs yang didukung, atau masukkan isi berita langsung.</CardDescription>
+          <CardTitle>Cek Artikel Berita</CardTitle>
+          <CardDescription>Pilih salah satu: tempel URL artikel berita dari situs yang didukung, atau masukkan isi artikel berita langsung.</CardDescription>
         </CardHeader>
 
         <CardContent>
           <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>
             <TabsList>
               <TabsTrigger value="url">Lewat URL</TabsTrigger>
-              <TabsTrigger value="text">Lewat Isi Berita</TabsTrigger>
+              <TabsTrigger value="text">Lewat Isi Artikel Berita</TabsTrigger>
             </TabsList>
 
             {/* Tab: URL */}
@@ -170,7 +170,7 @@ export default function CheckNewsPage() {
               <form onSubmit={handleSubmit}>
                 <div className="grid w-full items-center gap-4">
                   <div className="flex flex-col space-y-1.5">
-                    <Label htmlFor="newsUrl">Tautan Berita</Label>
+                    <Label htmlFor="newsUrl">Tautan Artikel Berita</Label>
                     <Input
                       id="newsUrl"
                       placeholder="Contoh: https://www.kompas.com/cekfakta/read/2024/07/22/184000382/..."
@@ -196,10 +196,10 @@ export default function CheckNewsPage() {
               <form onSubmit={handleSubmit}>
                 <div className="grid w-full items-center gap-4">
                   <div className="flex flex-col space-y-1.5">
-                    <Label htmlFor="newsBody">Isi Berita</Label>
+                    <Label htmlFor="newsBody">Isi Artikel Berita</Label>
                     <Textarea
                       id="newsBody"
-                      placeholder="Tempelkan isi berita di sini…"
+                      placeholder="Tempelkan isi artikel berita di sini…"
                       value={text}
                       rows={18}
                       onChange={(e) => setText(e.target.value)}
@@ -214,7 +214,7 @@ export default function CheckNewsPage() {
         <CardFooter className="flex justify-between">
           <Button variant="outline" onClick={resetAll}>Hapus</Button>
           <Button onClick={() => handleSubmit()} disabled={isLoading || !canSubmit}>
-            {isLoading ? <Spinner /> : 'Cek Berita'}
+            {isLoading ? <Spinner /> : 'Cek Artikel Berita'}
           </Button>
         </CardFooter>
       </Card>
@@ -247,14 +247,14 @@ export default function CheckNewsPage() {
           </CardHeader>
           <CardContent>
             <div className={`text-lg font-semibold mb-2 ${isHoax ? 'text-red-500' : 'text-green-500'}`}>
-              Berita ini kemungkinan besar {isHoax ? 'hoaks' : 'bukan hoaks'}.
+              Artikel berita ini kemungkinan besar {isHoax ? 'hoaks' : 'bukan hoaks'}.
             </div>
             <Progress value={confidencePct} className="w-full mb-2" />
             <p className="mb-4">Keyakinan: {confidencePct}%</p>
             <div className="text-sm text-muted-foreground">
-              Judul artikel:
+              Judul artikel berita:
               <blockquote className="mt-2 p-3 bg-muted rounded-lg">{resultUrl.title}</blockquote>
-              Isi artikel:
+              Konten artikel berita:
               <blockquote className="mt-2 p-3 bg-muted rounded-lg">{resultUrl.content}</blockquote>
             </div>
           </CardContent>
@@ -274,7 +274,7 @@ export default function CheckNewsPage() {
             <p className="text-sm text-muted-foreground">
               {isHoax
                 ? 'Model mendeteksi pola khas hoaks/penipuan (ajakan, janji hadiah, klaim bombastis, dll).'
-                : 'Model menilai teks ini konsisten dengan gaya artikel faktual yang terverifikasi.'}
+                : 'Model menilai teks ini konsisten dengan gaya artikel berita faktual yang terverifikasi.'}
             </p>
           </CardContent>
         </Card>
