@@ -50,8 +50,8 @@ export default function RecentHoaxesPage() {
           backgroundImage: `
             linear-gradient(to right, rgba(229,231,235,0.8) 1px, transparent 1px),
             linear-gradient(to bottom, rgba(229,231,235,0.8) 1px, transparent 1px),
-            radial-gradient(circle 500px at 0% 20%, rgba(139,92,246,0.25), transparent),
-            radial-gradient(circle 500px at 100% 0%, rgba(59,130,246,0.25), transparent)
+            radial-gradient(circle 500px at 0% 20%, rgba(139,92,246,0.3), transparent),
+            radial-gradient(circle 500px at 100% 0%, rgba(59,130,246,0.3), transparent)
           `,
           backgroundSize: "48px 48px, 48px 48px, 100% 100%, 100% 100%",
         }}
@@ -64,7 +64,7 @@ export default function RecentHoaxesPage() {
             <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Deteksi Hoaks Terbaru</h1>
             <p className="text-sm text-muted-foreground">Temuan terakhir sistem — gunakan sebagai verifikasi awal.</p>
           </div>
-          <Button asChild variant="ghost" className="rounded-xl">
+          <Button asChild variant="ghost" className="rounded-xl hidden sm:flex">
             <Link href="/"><ArrowLeft className="mr-2 h-4 w-4" /> Kembali</Link>
           </Button>
         </div>

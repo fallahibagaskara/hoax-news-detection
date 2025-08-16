@@ -165,7 +165,7 @@ export default function CheckNewsPage() {
             <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Cek Artikel Berita</h1>
             <p className="text-sm text-muted-foreground">Verifikasi awal berbasis IndoBERT—hasil bersifat probabilistik.</p>
           </div>
-          <Button asChild variant="ghost" className="rounded-xl">
+          <Button asChild variant="ghost" className="rounded-xl hidden sm:flex">
             <Link href="/"><ArrowLeft className="mr-2 h-4 w-4" /> Kembali</Link>
           </Button>
         </div>
