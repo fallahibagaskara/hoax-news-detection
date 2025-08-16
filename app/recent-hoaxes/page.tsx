@@ -85,14 +85,31 @@ export default function RecentHoaxesPage() {
 
         {/* Filters */}
         <div className="mb-6">
-          <Tabs value={cat} onValueChange={setCat}>
-            <TabsList className="backdrop-blur bg-white/60 dark:bg-white/10">
-              {cats.map(c => (
-                <TabsTrigger key={c} value={c} className="capitalize">{c}</TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+          <div className="-mx-6 px-6 sm:mx-0 sm:px-0">
+            <div className="overflow-x-auto overscroll-x-contain scrollbar-none rounded-md">
+              <Tabs value={cat} onValueChange={setCat}>
+                <TabsList
+                  className="
+            inline-flex min-w-max gap-1
+            whitespace-nowrap
+            backdrop-blur bg-white/60 dark:bg-white/10
+          "
+                >
+                  {cats.map((c) => (
+                    <TabsTrigger
+                      key={c}
+                      value={c}
+                      className="shrink-0 capitalize px-4 py-2"
+                    >
+                      {c}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
+            </div>
+          </div>
         </div>
+
 
         {/* Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
