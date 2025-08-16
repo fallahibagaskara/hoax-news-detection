@@ -27,6 +27,11 @@ type PredictRespUrl = {
   extracted_chars: number
   title: string
   content: string
+  category: string
+  verdict: string
+  confidence: number
+  reasons: string[]
+  credibility_score: number
 }
 
 type PredictRespText = {
@@ -76,11 +81,20 @@ function formatDate(iso: string) {
 }
 
 const catTone: Record<string, string> = {
-  Entertainment: "bg-pink-500/10 text-pink-700 dark:text-pink-300",
-  Politics: "bg-red-500/10 text-red-700 dark:text-red-300",
-  Health: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-  Science: "bg-sky-500/10 text-sky-700 dark:text-sky-300",
-  Sports: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
+  politik: "bg-red-500/10 text-red-700 dark:text-red-300",
+  ekonomi: "bg-green-500/10 text-green-700 dark:text-green-300",
+  bisnis: "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300",
+  hukum: "bg-orange-500/10 text-orange-700 dark:text-orange-300",
+  internasional: "bg-blue-500/10 text-blue-700 dark:text-blue-300",
+  olahraga: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
+  hiburan: "bg-pink-500/10 text-pink-700 dark:text-pink-300",
+  tekno: "bg-purple-500/10 text-purple-700 dark:text-purple-300",
+  otomotif: "bg-cyan-500/10 text-cyan-700 dark:text-cyan-300",
+  kesehatan: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  pendidikan: "bg-lime-500/10 text-lime-700 dark:text-lime-300",
+  sains: "bg-sky-500/10 text-sky-700 dark:text-sky-300",
+  lifestyle: "bg-rose-500/10 text-rose-700 dark:text-rose-300",
+  umum: "bg-gray-500/10 text-gray-700 dark:text-gray-300",
 }
 
 export default function CheckNewsPage() {
@@ -165,6 +179,15 @@ export default function CheckNewsPage() {
   }
 
   const host = getHost(url)
+
+  const resolvedCategory = useMemo(() => {
+    const c = mode === 'url'
+      ? resultUrl?.category
+      : (resultText as any)?.category; // jika API text belum punya field ini, akan undefined
+    return (c ?? 'umum').toLowerCase();
+  }, [mode, resultUrl, resultText]);
+
+  const resolvedTone = catTone[resolvedCategory] || 'bg-gray-500/10 text-gray-700 dark:text-gray-300';
 
   return (
     <div className="min-h-screen w-full bg-white relative">
@@ -350,9 +373,9 @@ export default function CheckNewsPage() {
                   <CalendarDays className="h-4 w-4" />
                   {formatDate("2023-07-10")}
                 </div>
-                <div className={`inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs ${catTone["Entertainment"]}`}>
+                <div className={`inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs ${catTone[resultUrl.category] || 'text-gray-500'}`}>
                   <Tag className="h-3.5 w-3.5" />
-                  "Entertainment"
+                  {resultUrl.category || 'Tidak Diketahui'}
                 </div>
               </div>
               <div
@@ -437,9 +460,9 @@ export default function CheckNewsPage() {
                   <CalendarDays className="h-4 w-4" />
                   {formatDate("2023-07-10")}
                 </div>
-                <div className={`inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs ${catTone["Entertainment"]}`}>
+                <div className={`inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs ${resolvedTone}`}>
                   <Tag className="h-3.5 w-3.5" />
-                  "Entertainment"
+                  {resolvedCategory}
                 </div>
               </div>
               <div

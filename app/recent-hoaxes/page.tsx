@@ -15,11 +15,11 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 // Demo data (biasanya dari API/DB)
 const recentHoaxes = [
-  { id: 1, title: "Fake Celebrity Death Hoax", url: "https://example.com/celebrity-hoax", detectedDate: "2023-07-10", score: 1.0, ms: 29, sentenceCount: 100, confidence: 98, category: "Entertainment" },
-  { id: 2, title: "Misleading Political Statement", url: "https://example.com/political-hoax", detectedDate: "2023-07-09", score: 1.0, ms: 29, sentenceCount: 100, confidence: 87, category: "Politics" },
-  { id: 3, title: "False Medical Claim", url: "https://example.com/medical-hoax", detectedDate: "2023-07-08", score: 1.0, ms: 29, sentenceCount: 100, confidence: 95, category: "Health" },
-  { id: 4, title: "Fabricated Scientific Discovery", url: "https://example.com/science-hoax", detectedDate: "2023-07-07", score: 1.0, ms: 29, sentenceCount: 100, confidence: 92, category: "Science" },
-  { id: 5, title: "Manipulated Sports Result", url: "https://example.com/sports-hoax", detectedDate: "2023-07-06", score: 1.0, ms: 29, sentenceCount: 100, confidence: 89, category: "Sports" },
+  { id: 1, title: "Fake Celebrity Death Hoax", url: "https://example.com/celebrity-hoax", detectedDate: "2023-07-10", score: 1.0, ms: 29, sentenceCount: 100, confidence: 98, category: "hiburan" },
+  { id: 2, title: "Misleading Political Statement", url: "https://example.com/political-hoax", detectedDate: "2023-07-09", score: 1.0, ms: 29, sentenceCount: 100, confidence: 87, category: "politik" },
+  { id: 3, title: "False Medical Claim", url: "https://example.com/medical-hoax", detectedDate: "2023-07-08", score: 1.0, ms: 29, sentenceCount: 100, confidence: 95, category: "kesehatan" },
+  { id: 4, title: "Fabricated Scientific Discovery", url: "https://example.com/science-hoax", detectedDate: "2023-07-07", score: 1.0, ms: 29, sentenceCount: 100, confidence: 92, category: "sains" },
+  { id: 5, title: "Manipulated Sports Result", url: "https://example.com/sports-hoax", detectedDate: "2023-07-06", score: 1.0, ms: 29, sentenceCount: 100, confidence: 89, category: "olahraga" },
 ]
 
 function formatMs(ms: number | null): string {
@@ -40,11 +40,20 @@ function formatDate(iso: string) {
 }
 
 const catTone: Record<string, string> = {
-  Entertainment: "bg-pink-500/10 text-pink-700 dark:text-pink-300",
-  Politics: "bg-red-500/10 text-red-700 dark:text-red-300",
-  Health: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-  Science: "bg-sky-500/10 text-sky-700 dark:text-sky-300",
-  Sports: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
+  politik: "bg-red-500/10 text-red-700 dark:text-red-300",
+  ekonomi: "bg-green-500/10 text-green-700 dark:text-green-300",
+  bisnis: "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300",
+  hukum: "bg-orange-500/10 text-orange-700 dark:text-orange-300",
+  internasional: "bg-blue-500/10 text-blue-700 dark:text-blue-300",
+  olahraga: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
+  hiburan: "bg-pink-500/10 text-pink-700 dark:text-pink-300",
+  tekno: "bg-purple-500/10 text-purple-700 dark:text-purple-300",
+  otomotif: "bg-cyan-500/10 text-cyan-700 dark:text-cyan-300",
+  kesehatan: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  pendidikan: "bg-lime-500/10 text-lime-700 dark:text-lime-300",
+  sains: "bg-sky-500/10 text-sky-700 dark:text-sky-300",
+  lifestyle: "bg-rose-500/10 text-rose-700 dark:text-rose-300",
+  umum: "bg-gray-500/10 text-gray-700 dark:text-gray-300",
 }
 
 export default function RecentHoaxesPage() {
