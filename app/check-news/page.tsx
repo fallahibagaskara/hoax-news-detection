@@ -61,6 +61,14 @@ function formatMs(ms: number | null): string {
   if (ms < 1000) return `${Math.round(ms)} ms`
   return `${(ms / 1000).toFixed(1)} s`
 }
+function formatDecimal(p?: number) {
+  if (p == null || Number.isNaN(p)) return '—';
+  return new Intl.NumberFormat('id-ID', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(p);
+}
+
 
 export default function CheckNewsPage() {
   const [mode, setMode] = useState<Mode>('url')
@@ -360,7 +368,7 @@ export default function CheckNewsPage() {
               {/* Micro-metrics */}
               <div className="mb-6 grid grid-cols-3 gap-3">
 
-                <Metric label="Skor Hoaks" value={`${hoaxScore}`} icon={<Gauge className="h-3.5 w-3.5" />} tone="emerald" />
+                <Metric label="Skor Hoaks" value={`${formatDecimal(hoaxScore)}`} icon={<Gauge className="h-3.5 w-3.5" />} tone="emerald" />
                 <Metric label="Kalimat Dicek" value={sentenceCount.toString()} icon={<FileTextIcon className="h-3.5 w-3.5" />} tone="sky" />
                 <Metric label="Waktu" value={formatMs(latencyMs)} icon={<Timer className="h-3.5 w-3.5" />} tone="amber" />
               </div>
@@ -426,7 +434,7 @@ export default function CheckNewsPage() {
               </div>
 
               <div className="mb-4 grid grid-cols-3 gap-3">
-                <Metric label="Skor Hoaks" value={`${hoaxScore}`} icon={<Gauge className="h-3.5 w-3.5" />} tone="emerald" />
+                <Metric label="Skor Hoaks" value={`${formatDecimal(hoaxScore)}`} icon={<Gauge className="h-3.5 w-3.5" />} tone="emerald" />
                 <Metric label="Kalimat Dicek" value={sentenceCount.toString()} icon={<FileTextIcon className="h-3.5 w-3.5" />} tone="sky" />
                 <Metric label="Waktu" value={formatMs(latencyMs)} icon={<Timer className="h-3.5 w-3.5" />} tone="amber" />
               </div>
