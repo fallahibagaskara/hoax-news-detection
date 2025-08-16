@@ -52,9 +52,6 @@ export default function TermsOfServicePage() {
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
             Syarat & Ketentuan
           </h1>
-          <p className="mt-3 text-sm sm:text-base text-muted-foreground">
-            Terakhir diperbarui: 15 Agustus 2025 · Berlaku di Indonesia
-          </p>
         </div>
 
         {/* Glass card */}
@@ -165,7 +162,7 @@ export default function TermsOfServicePage() {
 
                   <h2 id="kontak" className="scroll-mt-28">11. Kontak</h2>
                   <p>
-                    Pertanyaan terkait S&K: <a href="mailto:support@hoaxbuster.com">support@hoaxbuster.com</a>
+                    Pertanyaan terkait S&K: <a href="mailto:hoaxbuster@fallahi.my.id">hoaxbuster@fallahi.my.id</a>
                   </p>
                 </div>
               </article>
