@@ -38,6 +38,15 @@ type PredictRespText = {
   label: number
   p_valid: number
   p_hoax: number
+  source: string
+  extracted_chars: number
+  title: string
+  content: string
+  category: string
+  verdict: string
+  confidence: number
+  reasons: string[]
+  credibility_score: number
 }
 
 type Mode = 'url' | 'text'
@@ -188,6 +197,12 @@ export default function CheckNewsPage() {
   }, [mode, resultUrl, resultText]);
 
   const resolvedTone = catTone[resolvedCategory] || 'bg-gray-500/10 text-gray-700 dark:text-gray-300';
+
+  const resolvedReasons = useMemo(() => {
+    const r = mode === 'url' ? (resultUrl as any)?.reasons : (resultText as any)?.reasons
+    if (!r) return []
+    return Array.isArray(r) ? r : [String(r)]
+  }, [mode, resultUrl, resultText])
 
   return (
     <div className="min-h-screen w-full bg-white relative">
@@ -411,12 +426,9 @@ export default function CheckNewsPage() {
                       }`}
                   />
                 </div>
-
-                {/* <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-    {isHoax
-      ? 'Model mendeteksi pola khas hoaks/penipuan...'
-      : 'Sinyal bahasa provokatif rendah; sumber rujukan konsisten; struktur klaim faktual.'}
-  </p> */}
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  Alasan: {resultUrl?.reasons}
+                </p>
               </div>
 
               {/* Micro-metrics */}
@@ -499,11 +511,9 @@ export default function CheckNewsPage() {
                       }`}
                   />
                 </div>
-                {/* <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-    {isHoax
-      ? 'Model mendeteksi pola khas hoaks/penipuan...'
-      : 'Sinyal bahasa provokatif rendah; sumber rujukan konsisten; struktur klaim faktual.'}
-  </p> */}
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  Alasan: {resolvedReasons}
+                </p>
               </div>
 
               <div className="mb-4 grid grid-cols-3 gap-3">
