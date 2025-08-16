@@ -5,6 +5,8 @@ import Link from 'next/link'
 import {
   ArrowLeft, Gauge, Timer, FileText as FileTextIcon, ShieldAlert, ShieldCheck,
   Link2, Type, Copy, ChevronDown, ChevronUp,
+  CalendarDays,
+  Tag,
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -68,7 +70,18 @@ function formatDecimal(p?: number) {
     maximumFractionDigits: 2,
   }).format(p);
 }
+function formatDate(iso: string) {
+  // tampilkan tanggal lokal singkat
+  return new Date(iso).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })
+}
 
+const catTone: Record<string, string> = {
+  Entertainment: "bg-pink-500/10 text-pink-700 dark:text-pink-300",
+  Politics: "bg-red-500/10 text-red-700 dark:text-red-300",
+  Health: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  Science: "bg-sky-500/10 text-sky-700 dark:text-sky-300",
+  Sports: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
+}
 
 export default function CheckNewsPage() {
   const [mode, setMode] = useState<Mode>('url')
@@ -331,16 +344,19 @@ export default function CheckNewsPage() {
               </div>
             </CardHeader>
             <CardContent>
-              {/* Confidence */}
-              <Progress
-                value={confidencePct}
-                className={`w-full mb-2 ${isHoax
-                  ? '[&>div]:bg-red-500'
-                  : '[&>div]:bg-emerald-500'
-                  }`}
-              />
+              {/* Meta row */}
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                  <CalendarDays className="h-4 w-4" />
+                  {formatDate("2023-07-10")}
+                </div>
+                <div className={`inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs ${catTone["Entertainment"]}`}>
+                  <Tag className="h-3.5 w-3.5" />
+                  "Entertainment"
+                </div>
+              </div>
               <div
-                className={`mt-4 rounded-xl border p-4 mb-4 ${isHoax
+                className={`mt-2 rounded-xl border p-4 mb-4 ${isHoax
                   ? 'border-red-500/20 bg-red-500/5'
                   : 'border-emerald-500/20 bg-emerald-500/5'
                   }`}
@@ -352,12 +368,27 @@ export default function CheckNewsPage() {
                     <ShieldCheck className="h-4 w-4 text-emerald-600" />
                   )}
                   <span
-                    className={`text-sm font-semibold ${isHoax ? 'text-red-600' : 'text-emerald-600'
-                      }`}
+                    className={`text-sm font-semibold ${isHoax ? 'text-red-600' : 'text-emerald-600'}`}
                   >
-                    Prediksi: {isHoax ? 'Hoaks' : 'Valid'} ({confidencePct}%)
+                    Prediksi: {isHoax ? 'Hoaks' : 'Valid'}
                   </span>
                 </div>
+                {/* Confidence */}
+                <div className="mt-3">
+                  <div
+                    className={`mb-2 flex items-center justify-between text-sm font-medium ${isHoax ? "text-red-600" : "text-emerald-600"
+                      }`}
+                  >
+                    <span>Keyakinan</span>
+                    <span className="font-semibold tabular-nums">{confidencePct}%</span>
+                  </div>
+                  <Progress
+                    value={confidencePct}
+                    className={`h-2 rounded-full ${isHoax ? "[&>div]:bg-red-500" : "[&>div]:bg-emerald-500"
+                      }`}
+                  />
+                </div>
+
                 {/* <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
     {isHoax
       ? 'Model mendeteksi pola khas hoaks/penipuan...'
@@ -375,12 +406,12 @@ export default function CheckNewsPage() {
 
               {/* Preview judul + konten (modern, collapsible, copy) */}
               <PreviewBlock
-                title="Judul artikel berita"
+                title="Judul"
                 body={resultUrl.title}
                 onCopy={() => navigator.clipboard.writeText(resultUrl.title)}
               />
               <PreviewBlock
-                title="Konten artikel berita"
+                title="Konten"
                 body={resultUrl.content}
                 onCopy={() => navigator.clipboard.writeText(resultUrl.content)}
                 collapsible
@@ -400,15 +431,19 @@ export default function CheckNewsPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <Progress
-                value={confidencePct}
-                className={`w-full mb-2 ${isHoax
-                  ? '[&>div]:bg-red-500'
-                  : '[&>div]:bg-emerald-500'
-                  }`}
-              />
+              {/* Meta row */}
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                  <CalendarDays className="h-4 w-4" />
+                  {formatDate("2023-07-10")}
+                </div>
+                <div className={`inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs ${catTone["Entertainment"]}`}>
+                  <Tag className="h-3.5 w-3.5" />
+                  "Entertainment"
+                </div>
+              </div>
               <div
-                className={`mt-4 rounded-xl border p-4 mb-4 ${isHoax
+                className={`mt-2 rounded-xl border p-4 mb-4 ${isHoax
                   ? 'border-red-500/20 bg-red-500/5'
                   : 'border-emerald-500/20 bg-emerald-500/5'
                   }`}
@@ -426,6 +461,21 @@ export default function CheckNewsPage() {
                     Prediksi: {isHoax ? 'Hoaks' : 'Valid'} ({confidencePct}%)
                   </span>
                 </div>
+                {/* Confidence */}
+                <div className="mt-3">
+                  <div
+                    className={`mb-2 flex items-center justify-between text-sm font-medium ${isHoax ? "text-red-600" : "text-emerald-600"
+                      }`}
+                  >
+                    <span>Keyakinan</span>
+                    <span className="font-semibold tabular-nums">{confidencePct}%</span>
+                  </div>
+                  <Progress
+                    value={confidencePct}
+                    className={`h-2 rounded-full ${isHoax ? "[&>div]:bg-red-500" : "[&>div]:bg-emerald-500"
+                      }`}
+                  />
+                </div>
                 {/* <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
     {isHoax
       ? 'Model mendeteksi pola khas hoaks/penipuan...'
@@ -440,7 +490,7 @@ export default function CheckNewsPage() {
               </div>
 
               <PreviewBlock
-                title="Konten pemeriksaan"
+                title="Konten"
                 body={text}
                 onCopy={() => navigator.clipboard.writeText(text)}
                 collapsible

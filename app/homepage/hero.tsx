@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, SearchCheck, Newspaper, Link2, FileText, ShieldAlert, FileTextIcon, Timer, Gauge } from "lucide-react"
+import { Progress } from "@/components/ui/progress"
 
 export default function Hero() {
     return (
@@ -121,7 +122,20 @@ export default function Hero() {
                         <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
                             <div className="flex items-center gap-2">
                                 <ShieldAlert className="h-4 w-4 text-emerald-600" />
-                                <span className="text-sm font-semibold">Prediksi: Valid (74%)</span>
+                                <span className="text-sm font-semibold text-emerald-600">Prediksi: Valid</span>
+                            </div>
+                            <div className="mt-3">
+                                <div
+                                    className={`mb-2 flex items-center justify-between text-sm font-medium text-emerald-600
+                                        }`}
+                                >
+                                    <span>Keyakinan</span>
+                                    <span className="font-semibold tabular-nums">{74}%</span>
+                                </div>
+                                <Progress
+                                    value={74}
+                                    className={`h-2 rounded-full [&>div]:bg-emerald-500`}
+                                />
                             </div>
                             {/* <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                                 Sinyal bahasa provokatif rendah; sumber rujukan konsisten; struktur klaim faktual.

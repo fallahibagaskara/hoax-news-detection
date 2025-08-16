@@ -3,7 +3,9 @@
 import Link from "next/link"
 import { useMemo, useState } from "react"
 import {
-  ArrowLeft, ExternalLink, Copy, CalendarDays, Tag, Gauge, ShieldAlert
+  ArrowLeft, ExternalLink, Copy, CalendarDays, Tag, Gauge, ShieldAlert,
+  FileTextIcon,
+  Timer
 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -13,13 +15,25 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 // Demo data (biasanya dari API/DB)
 const recentHoaxes = [
-  { id: 1, title: "Fake Celebrity Death Hoax", url: "https://example.com/celebrity-hoax", detectedDate: "2023-07-10", confidence: 98, category: "Entertainment" },
-  { id: 2, title: "Misleading Political Statement", url: "https://example.com/political-hoax", detectedDate: "2023-07-09", confidence: 87, category: "Politics" },
-  { id: 3, title: "False Medical Claim", url: "https://example.com/medical-hoax", detectedDate: "2023-07-08", confidence: 95, category: "Health" },
-  { id: 4, title: "Fabricated Scientific Discovery", url: "https://example.com/science-hoax", detectedDate: "2023-07-07", confidence: 92, category: "Science" },
-  { id: 5, title: "Manipulated Sports Result", url: "https://example.com/sports-hoax", detectedDate: "2023-07-06", confidence: 89, category: "Sports" },
+  { id: 1, title: "Fake Celebrity Death Hoax", url: "https://example.com/celebrity-hoax", detectedDate: "2023-07-10", score: 1.0, ms: 29, sentenceCount: 100, confidence: 98, category: "Entertainment" },
+  { id: 2, title: "Misleading Political Statement", url: "https://example.com/political-hoax", detectedDate: "2023-07-09", score: 1.0, ms: 29, sentenceCount: 100, confidence: 87, category: "Politics" },
+  { id: 3, title: "False Medical Claim", url: "https://example.com/medical-hoax", detectedDate: "2023-07-08", score: 1.0, ms: 29, sentenceCount: 100, confidence: 95, category: "Health" },
+  { id: 4, title: "Fabricated Scientific Discovery", url: "https://example.com/science-hoax", detectedDate: "2023-07-07", score: 1.0, ms: 29, sentenceCount: 100, confidence: 92, category: "Science" },
+  { id: 5, title: "Manipulated Sports Result", url: "https://example.com/sports-hoax", detectedDate: "2023-07-06", score: 1.0, ms: 29, sentenceCount: 100, confidence: 89, category: "Sports" },
 ]
 
+function formatMs(ms: number | null): string {
+  if (!ms || ms <= 0) return '—'
+  if (ms < 1000) return `${Math.round(ms)} ms`
+  return `${(ms / 1000).toFixed(1)} s`
+}
+function formatDecimal(p?: number) {
+  if (p == null || Number.isNaN(p)) return '—';
+  return new Intl.NumberFormat('id-ID', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(p);
+}
 function formatDate(iso: string) {
   // tampilkan tanggal lokal singkat
   return new Date(iso).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })
@@ -121,16 +135,31 @@ export default function RecentHoaxesPage() {
                     </div>
                   </div>
 
-                  {/* Confidence metric */}
-                  <div className="rounded-lg border bg-white/60 p-3 backdrop-blur dark:bg-white/10">
-                    <div className="mb-1 flex items-center justify-between">
-                      <div className="inline-flex items-center gap-2 text-sm font-medium">
-                        <Gauge className="h-4 w-4" />
-                        Keyakinan Deteksi
-                      </div>
-                      <span className="text-sm font-semibold">{h.confidence}%</span>
+                  <div
+                    className={`mt-2 rounded-xl border p-4 mb-4 border-red-500/20 bg-red-500/5`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <ShieldAlert className="h-4 w-4 text-red-600" />
+                      <span
+                        className={`text-sm font-semibold text-red-600`}
+                      >
+                        Prediksi: Hoaks
+                      </span>
                     </div>
-                    <Progress value={h.confidence} className={`w-full ${barColor}`} />
+                    {/* Confidence */}
+                    <div className="mt-3">
+                      <div className="mb-2 flex items-center justify-between text-sm font-medium text-red-600">
+                        Keyakinan
+                        <span className="text-sm font-semibold text-red-600">{h.confidence}%</span>
+                      </div>
+                      <Progress value={h.confidence} className={`w-full ${barColor}`} />
+                    </div>
+                  </div>
+
+                  <div className="mb-4 grid grid-cols-3 gap-3">
+                    <Metric label="Skor Hoaks" value={`${formatDecimal(h.score)}`} icon={<Gauge className="h-3.5 w-3.5" />} tone="emerald" />
+                    <Metric label="Kalimat Dicek" value={h.sentenceCount.toString()} icon={<FileTextIcon className="h-3.5 w-3.5" />} tone="sky" />
+                    <Metric label="Waktu" value={formatMs(h.ms)} icon={<Timer className="h-3.5 w-3.5" />} tone="amber" />
                   </div>
 
                   {/* Actions */}
@@ -154,7 +183,27 @@ export default function RecentHoaxesPage() {
             )
           })}
         </div>
-      </div>
+      </div >
+    </div >
+  )
+}
+
+
+/* ---------- Small UI atoms for cleanliness ---------- */
+
+function Metric({
+  label, value, icon, tone = 'emerald',
+}: { label: string; value: string; icon: React.ReactNode; tone?: 'emerald' | 'sky' | 'amber' }) {
+  const toneMap = {
+    emerald: 'bg-emerald-500/10',
+    sky: 'bg-sky-500/10',
+    amber: 'bg-amber-500/10',
+  } as const
+  return (
+    <div className="rounded-lg border bg-white/60 p-3 text-center backdrop-blur dark:bg-white/10">
+      <div className={`mx-auto mb-1 flex h-6 w-6 items-center justify-center rounded ${toneMap[tone]}`}>{icon}</div>
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="text-sm font-semibold">{value}</div>
     </div>
   )
 }
