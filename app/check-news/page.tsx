@@ -127,7 +127,7 @@ export default function CheckNewsPage() {
     if (!r) return 0
     const isHoaxLocal = r.label === 1
     const prob = isHoaxLocal ? r.p_hoax : r.p_valid
-    return Math.round(prob * 100)
+    return parseFloat((prob * 100).toFixed(2))
   }, [activeResult])
 
   const hoaxScore = useMemo(() => {
@@ -198,10 +198,22 @@ export default function CheckNewsPage() {
 
   const resolvedTone = catTone[resolvedCategory] || 'bg-gray-500/10 text-gray-700 dark:text-gray-300';
 
-  const resolvedReasons = useMemo(() => {
-    const r = mode === 'url' ? (resultUrl as any)?.reasons : (resultText as any)?.reasons
-    if (!r) return []
-    return Array.isArray(r) ? r : [String(r)]
+  const resolvedReasons: string[] = useMemo(() => {
+    // ambil dari hasil aktif (url / text)
+    const raw = mode === 'url' ? (resultUrl as any)?.reasons : (resultText as any)?.reasons
+    if (!raw) return []
+
+    // kalau sudah array → rapikan
+    if (Array.isArray(raw)) {
+      return raw
+        .map((s) => String(s).trim())
+        .filter(Boolean)
+    }
+
+    // kalau string → pecah jadi kalimat (tahan tanda baca)
+    const s = String(raw).trim()
+    const parts = s.match(/[^.!?]+[.!?]*/g) || [s] // “Input... Minim...”
+    return parts.map((p) => p.trim()).filter(Boolean)
   }, [mode, resultUrl, resultText])
 
   return (
@@ -427,7 +439,7 @@ export default function CheckNewsPage() {
                   />
                 </div>
                 <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  Alasan: {resultUrl?.reasons}
+                  Alasan: {resolvedReasons.join(' ')}
                 </p>
               </div>
 
@@ -512,7 +524,7 @@ export default function CheckNewsPage() {
                   />
                 </div>
                 <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  Alasan: {resolvedReasons}
+                  Alasan: {resolvedReasons.join(' ')}
                 </p>
               </div>
 
