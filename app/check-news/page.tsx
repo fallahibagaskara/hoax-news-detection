@@ -30,6 +30,7 @@ type PredictRespUrl = {
   confidence: number
   reasons: string[]
   credibility_score: number
+  published_at?: string
 }
 
 type PredictRespText = {
@@ -45,6 +46,7 @@ type PredictRespText = {
   confidence?: number
   reasons?: string[]
   credibility_score?: number
+  published_at?: string
 }
 
 type Mode = 'url' | 'text'
@@ -368,6 +370,7 @@ export default function CheckNewsPage() {
             title={resultUrl.title}
             content={resultUrl.content}
             reasons={resolvedReasons}
+            publishedAt={resultUrl.published_at}
             showFull={showFullContent}
             toggleShow={() => setShowFullContent(v => !v)}
           >
@@ -471,13 +474,14 @@ function ResultCard(props: {
   title: string
   content: string
   reasons: string[]
+  publishedAt?: string
   showFull: boolean
   toggleShow: () => void
   children?: React.ReactNode
 }) {
   const {
     isHoax, confidencePct, latencyMs, sentenceCount, hoaxScore,
-    category, toneClass, title, content, reasons, showFull, toggleShow, children,
+    category, toneClass, title, content, reasons, publishedAt, showFull, toggleShow, children,
   } = props
 
   return (
@@ -494,7 +498,7 @@ function ResultCard(props: {
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
             <CalendarDays className="h-4 w-4" />
-            {formatDate('2023-07-10')}
+            {publishedAt ? formatDate(publishedAt) : '—'}
           </div>
           <div className={`inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs ${toneClass}`}>
             <Tag className="h-3.5 w-3.5" />
