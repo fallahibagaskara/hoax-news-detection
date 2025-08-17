@@ -74,7 +74,7 @@ export default function TopNav() {
 
             {/* Mobile Backdrop */}
             <div
-                className={`fixed inset-0 z-40 bg-black/40 transition-opacity ${open ? "opacity-100" : "pointer-events-none opacity-0"} md:hidden`}
+                className={`fixed inset-0 z-40 bg-black/25 transition-opacity ${open ? "opacity-100" : "pointer-events-none opacity-0"} md:hidden`}
                 onClick={() => setOpen(false)}
                 aria-hidden="true"
             />
@@ -86,7 +86,7 @@ export default function TopNav() {
                 aria-modal="true"
                 className={`
           fixed left-4 right-4 top-20 z-50 origin-top rounded-2xl border
-          bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-xl
+          bg-background shadow-xl
           transition-all duration-200 md:hidden
           ${open ? "scale-y-100 opacity-100" : "scale-y-95 opacity-0 pointer-events-none"}
         `}
