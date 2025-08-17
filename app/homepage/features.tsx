@@ -17,7 +17,7 @@ export default function Features() {
                     Fitur Utama
                 </h2>
                 <p className="mx-auto mb-14 max-w-2xl text-center text-sm sm:text-base text-muted-foreground">
-                    Dirancang untuk decision-making cepat: akurat, transparan, dan ramah pengguna.
+                    Dirancang untuk pengambilan keputusan cepat: akurat, transparan, dan ramah pengguna.
                 </p>
 
                 <div className="grid grid-cols-1 gap-5 sm:gap-6 md:gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -73,7 +73,7 @@ export default function Features() {
                                 Laporan & Skor Probabilitas
                             </h3>
                             <p className="text-sm text-muted-foreground">
-                                Tampilkan confidence score, kategori prediksi, dan insight singkat untuk keputusan yang accountable.
+                                Tampilkan skor probabilitas, kategori prediksi, dan ringkasan alasan.
                             </p>
                         </div>
                     </div>

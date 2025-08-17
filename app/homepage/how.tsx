@@ -74,7 +74,7 @@ export default function HowItWorks() {
                                     <h3 className="text-lg font-semibold sm:text-xl">Dapatkan Hasil</h3>
                                 </div>
                                 <p className="text-sm text-muted-foreground">
-                                    Tampilkan <span className="font-medium">skor probabilitas</span>, kategori prediksi, dan ringkasan alasan. Gunakan sebagai decision support.
+                                    Tampilkan <span className="font-medium">skor probabilitas</span>, kategori prediksi, dan ringkasan alasan. Gunakan sebagai sistem pendukung keputusan.
                                 </p>
                             </div>
                         </div>

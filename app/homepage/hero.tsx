@@ -54,9 +54,9 @@ export default function Hero() {
 
                     {/* Feature chips */}
                     <div className="mt-6 flex flex-wrap gap-2">
-                        <span className="rounded-full border border-white/20 bg-white/70 px-3 py-1 text-xs text-foreground backdrop-blur-md dark:bg-white/10">Confidence Score</span>
-                        <span className="rounded-full border border-white/20 bg-white/70 px-3 py-1 text-xs text-foreground backdrop-blur-md dark:bg-white/10">Highlight Pola</span>
-                        <span className="rounded-full border border-white/20 bg-white/70 px-3 py-1 text-xs text-foreground backdrop-blur-md dark:bg-white/10">Explainability Ringkas</span>
+                        <span className="rounded-full border border-white/20 bg-white/70 px-3 py-1 text-xs text-foreground backdrop-blur-md dark:bg-white/10">Tag Kategori</span>
+                        <span className="rounded-full border border-white/20 bg-white/70 px-3 py-1 text-xs text-foreground backdrop-blur-md dark:bg-white/10">Skor Probabilitas</span>
+                        <span className="rounded-full border border-white/20 bg-white/70 px-3 py-1 text-xs text-foreground backdrop-blur-md dark:bg-white/10">Ringkasan Alasan</span>
                     </div>
 
                     {/* CTAs */}
