@@ -89,8 +89,26 @@ function formatDecimal(p?: number) {
   return new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(p)
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
+function normalizeDateString(str: string) {
+  // ganti hanya bagian jam-menit-detik, bukan tanggal
+  return str.replace(/T(\d{2})-(\d{2})-(\d{2})Z/, "T$1:$2:$3Z")
+}
+
+function formatDate(str: string) {
+  try {
+    const fixed = normalizeDateString(str)
+    const date = new Date(fixed)
+    return date.toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    }) + " " + date.toLocaleTimeString("id-ID", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  } catch {
+    return "—"
+  }
 }
 
 function formatPercent(prob: number) {
