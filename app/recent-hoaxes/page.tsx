@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
 import {
   ArrowLeft, ExternalLink, Copy, CalendarDays, Tag, ShieldAlert,
-  ChevronUp, ChevronDown,
+  ChevronUp, ChevronDown, Timer, FileText as FileTextIcon, Gauge,
 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -28,6 +28,12 @@ type HoaxItem = {
   created_at?: string
   published_at?: string
   content?: string
+  total_sentences?: number
+  timing?: {
+    total_ms?: number
+    inference_ms?: number
+    extraction_ms?: number
+  }
 }
 
 type ApiResp = {
@@ -40,10 +46,20 @@ type ApiResp = {
   items: HoaxItem[]
 }
 
-// ---- utils ----
 function formatDateLocal(iso: string) {
   const d = new Date(iso)
   return d.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })
+}
+
+function formatMs(ms?: number | null) {
+  if (ms == null || ms <= 0) return "—"
+  if (ms < 1000) return `${Math.round(ms)} ms`
+  return `${(ms / 1000).toFixed(1)} s`
+}
+
+function formatDecimal(n?: number) {
+  if (n == null || Number.isNaN(n)) return "—"
+  return new Intl.NumberFormat("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
 }
 
 const catTone: Record<string, string> = {
@@ -64,21 +80,8 @@ const catTone: Record<string, string> = {
 }
 
 const CATEGORIES = [
-  "all",
-  "politik",
-  "ekonomi",
-  "bisnis",
-  "hukum",
-  "internasional",
-  "olahraga",
-  "hiburan",
-  "tekno",
-  "otomotif",
-  "kesehatan",
-  "pendidikan",
-  "sains",
-  "lifestyle",
-  "umum",
+  "all", "politik", "ekonomi", "bisnis", "hukum", "internasional", "olahraga",
+  "hiburan", "tekno", "otomotif", "kesehatan", "pendidikan", "sains", "lifestyle", "umum",
 ] as const
 
 export default function RecentHoaxesPage() {
@@ -89,7 +92,6 @@ export default function RecentHoaxesPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // meta dari API untuk pagination
   const [total, setTotal] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
   const [hasNext, setHasNext] = useState(false)
@@ -99,7 +101,6 @@ export default function RecentHoaxesPage() {
     return s === "all" ? "Semua" : s.charAt(0).toUpperCase() + s.slice(1)
   }
 
-  // fetch data per halaman
   useEffect(() => {
     let mounted = true
     async function run() {
@@ -125,14 +126,11 @@ export default function RecentHoaxesPage() {
     return () => { mounted = false }
   }, [page, limit])
 
-  // daftar kategori statis
-  // filter client-side (hanya untuk item pada halaman ini)
   const filtered = useMemo(
     () => (cat === "all" ? items : items.filter(h => (h.category || "umum").toLowerCase() === cat)),
     [cat, items]
   )
 
-  // reset ke halaman 1 saat ganti kategori
   useEffect(() => { setPage(1) }, [cat])
 
   function getPageNumbers(curr: number, last: number) {
@@ -155,22 +153,9 @@ export default function RecentHoaxesPage() {
 
   return (
     <div className="min-h-screen w-full bg-white relative">
-      {/* background */}
-      <div
-        className="fixed inset-0 z-0 pointer-events-none"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(229,231,235,0.8) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(229,231,235,0.8) 1px, transparent 1px),
-            radial-gradient(circle 500px at 0% 20%, rgba(139,92,246,0.3), transparent),
-            radial-gradient(circle 500px at 100% 0%, rgba(59,130,246,0.3), transparent)
-          `,
-          backgroundSize: "48px 48px, 48px 48px, 100% 100%, 100% 100%",
-        }}
-      />
+      <div className="fixed inset-0 z-0 pointer-events-none" style={{ background: "radial-gradient(125% 125% at 50% 90%, #fff 40%, #6366f1 100%)" }} />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8 relative z-10">
-        {/* Header */}
         <div className="mb-5 sm:mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">
@@ -185,17 +170,12 @@ export default function RecentHoaxesPage() {
           </Button>
         </div>
 
-        {/* Filters (scrollable) */}
         <div className="mb-5 sm:mb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
           <div className="overflow-x-auto overscroll-x-contain rounded-md [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <Tabs value={cat} onValueChange={setCat}>
               <TabsList className="inline-flex min-w-max gap-1 whitespace-nowrap bg-white/60 dark:bg-white/10 backdrop-blur">
                 {CATEGORIES.map((c) => (
-                  <TabsTrigger
-                    key={c}
-                    value={c}
-                    className="shrink-0 capitalize px-3 py-2 sm:px-4 text-xs sm:text-sm"
-                  >
+                  <TabsTrigger key={c} value={c} className="shrink-0 capitalize px-3 py-2 sm:px-4 text-xs sm:text-sm">
                     {cap(c)}
                   </TabsTrigger>
                 ))}
@@ -204,14 +184,12 @@ export default function RecentHoaxesPage() {
           </div>
         </div>
 
-        {/* States */}
         {loading && <p className="text-sm text-muted-foreground">Memuat data…</p>}
         {error && <p className="text-sm text-red-600">{error}</p>}
         {!loading && !error && filtered.length === 0 && (
           <p className="text-sm text-muted-foreground">Belum ada data.</p>
         )}
 
-        {/* Grid responsif */}
         <div className="grid gap-4 sm:gap-5 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((h) => {
             const isHoax = h.label === 1
@@ -224,6 +202,12 @@ export default function RecentHoaxesPage() {
 
             const displayDateIso = h.published_at || h.created_at
             const displayDate = displayDateIso ? formatDateLocal(displayDateIso) : "—"
+
+            const hoaxScore = h.p_hoax ?? 0
+            const totalSent = h.total_sentences ?? 0
+            const totalMs = h.timing?.total_ms ?? null
+            const infMs = h.timing?.inference_ms ?? null
+            const extMs = h.timing?.extraction_ms ?? null
 
             return (
               <Card
@@ -246,7 +230,6 @@ export default function RecentHoaxesPage() {
                 </CardHeader>
 
                 <CardContent className="space-y-3 sm:space-y-4">
-                  {/* Meta row */}
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
                       <CalendarDays className="h-4 w-4" />
@@ -258,7 +241,50 @@ export default function RecentHoaxesPage() {
                     </div>
                   </div>
 
-                  {/* Verdict */}
+                  {/* Ringkasan metrik baru */}
+                  <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                    <Metric
+                      label="Skor Hoaks"
+                      value={formatDecimal(hoaxScore)}
+                      icon={<Gauge className="h-3.5 w-3.5" />}
+                      tone="emerald"
+                    />
+                    <Metric
+                      label="Kalimat Dicek"
+                      value={String(totalSent)}
+                      icon={<FileTextIcon className="h-3.5 w-3.5" />}
+                      tone="sky"
+                    />
+                    <Metric
+                      label="Waktu (total)"
+                      value={formatMs(totalMs)}
+                      icon={<Timer className="h-3.5 w-3.5" />}
+                      tone="amber"
+                    />
+                  </div>
+
+                  {/* breakdown waktu bila ada */}
+                  {(extMs != null || infMs != null) && (
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                      {extMs != null && (
+                        <Metric
+                          label="Waktu Ekstraksi"
+                          value={formatMs(extMs)}
+                          icon={<Timer className="h-3.5 w-3.5" />}
+                          tone="amber"
+                        />
+                      )}
+                      {infMs != null && (
+                        <Metric
+                          label="Waktu Inferensi"
+                          value={formatMs(infMs)}
+                          icon={<Timer className="h-3.5 w-3.5" />}
+                          tone="amber"
+                        />
+                      )}
+                    </div>
+                  )}
+
                   <div className="rounded-xl border p-3 sm:p-4 border-red-500/20 bg-red-500/5">
                     <div className="flex items-center gap-2">
                       <ShieldAlert className="h-4 w-4 text-red-600" />
@@ -274,7 +300,6 @@ export default function RecentHoaxesPage() {
                       <Progress value={confidence} className={`w-full h-2 sm:h-2.5 ${barColor}`} />
                     </div>
 
-                    {/* Reasons (bullet list) */}
                     <ReasonsList items={h.reasons || []} />
                   </div>
 
@@ -287,7 +312,6 @@ export default function RecentHoaxesPage() {
                     />
                   )}
 
-                  {/* Actions */}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2">
                     <Button
                       variant="secondary"
@@ -309,7 +333,6 @@ export default function RecentHoaxesPage() {
           })}
         </div>
 
-        {/* Pagination */}
         <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <p className="text-xs sm:text-sm text-muted-foreground">
             Menampilkan {total ? showingFrom : 0}–{total ? showingTo : 0} dari {total} entri
@@ -358,7 +381,23 @@ export default function RecentHoaxesPage() {
   )
 }
 
-/* ---------- Preview & Reasons components ---------- */
+function Metric({
+  label, value, icon, tone = 'emerald',
+}: { label: string; value: string; icon: React.ReactNode; tone?: 'emerald' | 'sky' | 'amber' }) {
+  const toneMap = {
+    emerald: 'bg-emerald-500/10',
+    sky: 'bg-sky-500/10',
+    amber: 'bg-amber-500/10',
+  } as const
+  return (
+    <div className="rounded-lg border bg-white/60 p-3 text-center backdrop-blur dark:bg-white/10">
+      <div className={`mx-auto mb-1 flex h-6 w-6 items-center justify-center rounded ${toneMap[tone]}`}>{icon}</div>
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="text-sm font-semibold">{value}</div>
+    </div>
+  )
+}
+
 function PreviewBlock({
   title, body, onCopy, collapsible = false, expanded = false, onToggle,
 }: {
@@ -385,10 +424,8 @@ function PreviewBlock({
         <h4 className="text-sm font-semibold min-w-0">{title}</h4>
 
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          {/* Toggle — icon-only on mobile, icon+label on ≥sm */}
           {shouldToggle && (
             <>
-              {/* mobile (icon-only) */}
               <Button
                 size="icon"
                 variant="ghost"
@@ -400,7 +437,6 @@ function PreviewBlock({
                 {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </Button>
 
-              {/* ≥sm (ikon + teks) */}
               <Button
                 size="sm"
                 variant="ghost"
@@ -413,7 +449,6 @@ function PreviewBlock({
             </>
           )}
 
-          {/* Copy — icon-only on mobile, ikon+teks pada ≥sm */}
           <Button
             size="icon"
             variant="secondary"
@@ -437,8 +472,7 @@ function PreviewBlock({
       </div>
 
       <blockquote
-        className={`relative rounded-lg bg-muted p-3 text-xs sm:text-sm leading-relaxed text-muted-foreground ${clamped ? "line-clamp-6" : ""
-          }`}
+        className={`relative rounded-lg bg-muted p-3 text-xs sm:text-sm leading-relaxed text-muted-foreground ${clamped ? "line-clamp-6" : ""}`}
       >
         {body || "—"}
       </blockquote>

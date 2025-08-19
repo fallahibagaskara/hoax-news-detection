@@ -17,12 +17,10 @@ import { Spinner } from '@/components/ui/spinner'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 
-type PredictRespUrl = {
+type PredictRespCommon = {
   label: number
   p_valid: number
   p_hoax: number
-  source: string
-  extracted_chars: number
   title: string
   content: string
   category: string
@@ -31,22 +29,20 @@ type PredictRespUrl = {
   reasons: string[]
   credibility_score: number
   published_at?: string
+  total_sentences: number
+  inference_ms: number
+  total_ms: number
 }
 
-type PredictRespText = {
-  label: number
-  p_valid: number
-  p_hoax: number
+type PredictRespUrl = PredictRespCommon & {
+  source: string
+  extracted_chars: number
+  extraction_ms?: number
+}
+
+type PredictRespText = PredictRespCommon & {
   source?: string
   extracted_chars?: number
-  title?: string
-  content?: string
-  category?: string
-  verdict?: string
-  confidence?: number
-  reasons?: string[]
-  credibility_score?: number
-  published_at?: string
 }
 
 type Mode = 'url' | 'text'
@@ -71,15 +67,8 @@ function isSupportedHost(host: string): boolean {
   return SUPPORTED_DOMAINS.some(d => host === d || host.endsWith('.' + d))
 }
 
-function countSentences(txt: string): number {
-  return (txt || '')
-    .split(/[\.\!\?\n]+/g)
-    .map(s => s.trim())
-    .filter(s => s.length > 3).length
-}
-
-function formatMs(ms: number | null): string {
-  if (!ms || ms <= 0) return '—'
+function formatMs(ms?: number | null): string {
+  if (ms == null || ms <= 0) return '—'
   if (ms < 1000) return `${Math.round(ms)} ms`
   return `${(ms / 1000).toFixed(1)} s`
 }
@@ -90,11 +79,11 @@ function formatDecimal(p?: number) {
 }
 
 function normalizeDateString(str: string) {
-  // ganti hanya bagian jam-menit-detik, bukan tanggal
   return str.replace(/T(\d{2})-(\d{2})-(\d{2})Z/, "T$1:$2:$3Z")
 }
 
-function formatDate(str: string) {
+function formatDate(str?: string) {
+  if (!str) return '—'
   try {
     const fixed = normalizeDateString(str)
     const date = new Date(fixed)
@@ -111,8 +100,9 @@ function formatDate(str: string) {
   }
 }
 
-function formatPercent(prob: number) {
-  return parseFloat((prob * 100).toFixed(2)) // number dengan 2 desimal
+function formatPercent(prob?: number) {
+  if (prob == null) return 0
+  return parseFloat((prob * 100).toFixed(2))
 }
 
 const toneByCategory: Record<string, string> = {
@@ -132,7 +122,6 @@ const toneByCategory: Record<string, string> = {
   umum: 'bg-gray-500/10 text-gray-700 dark:text-gray-300',
 }
 
-// ---------- page ----------
 export default function CheckNewsPage() {
   const [mode, setMode] = useState<Mode>('url')
   const [url, setUrl] = useState('')
@@ -141,7 +130,6 @@ export default function CheckNewsPage() {
   const [error, setError] = useState<string | null>(null)
   const [resultUrl, setResultUrl] = useState<PredictRespUrl | null>(null)
   const [resultText, setResultText] = useState<PredictRespText | null>(null)
-  const [latencyMs, setLatencyMs] = useState<number | null>(null)
   const [showFullContent, setShowFullContent] = useState(false)
 
   const activeResult = mode === 'url' ? resultUrl : resultText
@@ -156,11 +144,10 @@ export default function CheckNewsPage() {
 
   const hoaxScore = useMemo(() => (activeResult ? activeResult.p_hoax ?? 0 : 0), [activeResult])
   const isHoax = useMemo(() => !!activeResult && activeResult.label === 1, [activeResult])
-
-  const sentenceCount = useMemo(() => {
-    if (mode === 'url') return resultUrl?.content ? countSentences(resultUrl.content) : 0
-    return text ? countSentences(text) : 0
-  }, [mode, resultUrl, text])
+  const sentenceCount = activeResult?.total_sentences ?? 0
+  const apiTotalMs = activeResult?.total_ms ?? null
+  const apiInfMs = activeResult?.inference_ms ?? null
+  const apiExtMs = (mode === 'url' ? (resultUrl?.extraction_ms ?? null) : null)
 
   const host = getHost(url)
 
@@ -188,10 +175,8 @@ export default function CheckNewsPage() {
     setError(null)
     setResultUrl(null)
     setResultText(null)
-    setLatencyMs(null)
     setShowFullContent(false)
 
-    const t0 = performance.now()
     try {
       const endpoint = mode === 'url' ? `${API_BASE}/predict_url` : `${API_BASE}/predict`
       const payload = mode === 'url' ? { url } : { text }
@@ -214,11 +199,8 @@ export default function CheckNewsPage() {
 
       if (mode === 'url') setResultUrl(data as PredictRespUrl)
       else setResultText(data as PredictRespText)
-
-      setLatencyMs(performance.now() - t0)
     } catch (err: any) {
       setError(err?.message || 'Gagal memanggil API.')
-      setLatencyMs(performance.now() - t0)
     } finally {
       setIsLoading(false)
     }
@@ -230,7 +212,6 @@ export default function CheckNewsPage() {
     setResultUrl(null)
     setResultText(null)
     setError(null)
-    setLatencyMs(null)
     setShowFullContent(false)
   }
 
@@ -239,17 +220,10 @@ export default function CheckNewsPage() {
       <div
         className="fixed inset-0 z-0 pointer-events-none"
         style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(229,231,235,0.8) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(229,231,235,0.8) 1px, transparent 1px),
-            radial-gradient(circle 500px at 0% 20%, rgba(139,92,246,0.3), transparent),
-            radial-gradient(circle 500px at 100% 0%, rgba(59,130,246,0.3), transparent)
-          `,
-          backgroundSize: '48px 48px, 48px 48px, 100% 100%, 100% 100%',
+          background: "radial-gradient(125% 125% at 50% 90%, #fff 40%, #6366f1 100%)",
         }}
       />
       <div className="container mx-auto px-6 sm:px-8 lg:px-12 py-8 relative z-10">
-        {/* header */}
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Cek Artikel Berita</h1>
@@ -335,9 +309,6 @@ export default function CheckNewsPage() {
                         className="min-h-[180px] bg-transparent pl-10 pr-3 pt-2 focus-visible:ring-0"
                       />
                     </div>
-                    <div className="mt-1 text-xs text-muted-foreground">
-                      Perkiraan kalimat: <span className="font-medium">{countSentences(text)}</span>
-                    </div>
                   </div>
                 </form>
               </TabsContent>
@@ -360,8 +331,8 @@ export default function CheckNewsPage() {
               <p className="text-center mt-4 text-sm text-muted-foreground">Mengambil & menganalisis konten…</p>
               <div className="mt-4 grid grid-cols-3 gap-3">
                 <Metric label="Skor Hoaks" value="—" icon={<Gauge className="h-3.5 w-3.5" />} tone="emerald" />
-                <Metric label="Kalimat Dicek" value={mode === 'url' ? '—' : String(countSentences(text))} icon={<FileTextIcon className="h-3.5 w-3.5" />} tone="sky" />
-                <Metric label="Waktu" value={formatMs(latencyMs)} icon={<Timer className="h-3.5 w-3.5" />} tone="amber" />
+                <Metric label="Kalimat Dicek" value="—" icon={<FileTextIcon className="h-3.5 w-3.5" />} tone="sky" />
+                <Metric label="Waktu" value="—" icon={<Timer className="h-3.5 w-3.5" />} tone="amber" />
               </div>
             </CardContent>
           </Card>
@@ -380,7 +351,6 @@ export default function CheckNewsPage() {
           <ResultCard
             isHoax={isHoax}
             confidencePct={confidencePct}
-            latencyMs={latencyMs}
             sentenceCount={sentenceCount}
             hoaxScore={hoaxScore}
             category={resultUrl.category}
@@ -391,6 +361,9 @@ export default function CheckNewsPage() {
             publishedAt={resultUrl.published_at}
             showFull={showFullContent}
             toggleShow={() => setShowFullContent(v => !v)}
+            totalMs={apiTotalMs}
+            inferenceMs={apiInfMs}
+            extractionMs={apiExtMs}
           >
             <CardDescription>
               Sumber: {resultUrl.source} · Teks terekstrak: {resultUrl.extracted_chars.toLocaleString()} karakter
@@ -403,16 +376,17 @@ export default function CheckNewsPage() {
           <ResultCard
             isHoax={isHoax}
             confidencePct={confidencePct}
-            latencyMs={latencyMs}
             sentenceCount={sentenceCount}
             hoaxScore={hoaxScore}
             category={resolvedCategory}
             toneClass={resolvedTone}
             title="Konten pemeriksaan"
-            content={text}
+            content={resultText.content || text}
             reasons={resolvedReasons}
+            publishedAt={resultText.published_at}
             showFull={showFullContent}
             toggleShow={() => setShowFullContent(v => !v)}
+            totalMs={apiTotalMs}
           />
         )}
       </div>
@@ -484,7 +458,6 @@ function ReasonsList({ items }: { items: string[] }) {
 function ResultCard(props: {
   isHoax: boolean
   confidencePct: number
-  latencyMs: number | null
   sentenceCount: number
   hoaxScore: number
   category: string
@@ -496,10 +469,14 @@ function ResultCard(props: {
   showFull: boolean
   toggleShow: () => void
   children?: React.ReactNode
+  totalMs: number | null
+  inferenceMs?: number | null
+  extractionMs?: number | null
 }) {
   const {
-    isHoax, confidencePct, latencyMs, sentenceCount, hoaxScore,
+    isHoax, confidencePct, sentenceCount, hoaxScore,
     category, toneClass, title, content, reasons, publishedAt, showFull, toggleShow, children,
+    totalMs, inferenceMs, extractionMs,
   } = props
 
   return (
@@ -507,7 +484,6 @@ function ResultCard(props: {
       <CardHeader>
         <div className="flex items-start justify-between gap-3">
           <CardTitle>Hasil Analisis</CardTitle>
-          {/* slot untuk description (opsional) */}
         </div>
         {children}
       </CardHeader>
@@ -516,7 +492,7 @@ function ResultCard(props: {
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
             <CalendarDays className="h-4 w-4" />
-            {publishedAt ? formatDate(publishedAt) : '—'}
+            {formatDate(publishedAt)}
           </div>
           <div className={`inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs ${toneClass}`}>
             <Tag className="h-3.5 w-3.5" />
@@ -549,8 +525,19 @@ function ResultCard(props: {
         <div className="mb-6 grid grid-cols-3 gap-3">
           <Metric label="Skor Hoaks" value={formatDecimal(hoaxScore)} icon={<Gauge className="h-3.5 w-3.5" />} tone="emerald" />
           <Metric label="Kalimat Dicek" value={String(sentenceCount)} icon={<FileTextIcon className="h-3.5 w-3.5" />} tone="sky" />
-          <Metric label="Waktu" value={formatMs(latencyMs)} icon={<Timer className="h-3.5 w-3.5" />} tone="amber" />
+          <Metric label="Waktu (total)" value={formatMs(totalMs)} icon={<Timer className="h-3.5 w-3.5" />} tone="amber" />
         </div>
+
+        {(extractionMs != null || inferenceMs != null) && (
+          <div className="mb-6 grid grid-cols-2 gap-3">
+            {extractionMs != null && (
+              <Metric label="Waktu Ekstraksi" value={formatMs(extractionMs)} icon={<Timer className="h-3.5 w-3.5" />} tone="amber" />
+            )}
+            {inferenceMs != null && (
+              <Metric label="Waktu Inferensi" value={formatMs(inferenceMs)} icon={<Timer className="h-3.5 w-3.5" />} tone="amber" />
+            )}
+          </div>
+        )}
 
         <PreviewBlock
           title={title}
