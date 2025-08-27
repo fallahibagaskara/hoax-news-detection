@@ -250,7 +250,7 @@ export default function RecentHoaxesPage() {
                       tone="emerald"
                     />
                     <Metric
-                      label="Kalimat Dicek"
+                      label="Jumlah Kalimat"
                       value={String(totalSent)}
                       icon={<FileTextIcon className="h-3.5 w-3.5" />}
                       tone="sky"

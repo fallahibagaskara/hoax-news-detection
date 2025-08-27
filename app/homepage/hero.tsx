@@ -155,7 +155,7 @@ export default function Hero() {
                                 <div className="mx-auto mb-1 flex h-6 w-6 items-center justify-center rounded bg-sky-500/10">
                                     <FileTextIcon className="h-3.5 w-3.5 text-sky-600" />
                                 </div>
-                                <div className="text-xs text-muted-foreground">Kalimat Dicek</div>
+                                <div className="text-xs text-muted-foreground">Jumlah Kalimat</div>
                                 <div className="text-sm font-semibold">18</div>
                             </div>
                             <div className="rounded-lg border bg-white/60 p-3 text-center backdrop-blur dark:bg-white/10">

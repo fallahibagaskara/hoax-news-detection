@@ -331,7 +331,7 @@ export default function CheckNewsPage() {
               <p className="text-center mt-4 text-sm text-muted-foreground">Mengambil & menganalisis konten…</p>
               <div className="mt-4 grid grid-cols-3 gap-3">
                 <Metric label="Skor Hoaks" value="—" icon={<Gauge className="h-3.5 w-3.5" />} tone="emerald" />
-                <Metric label="Kalimat Dicek" value="—" icon={<FileTextIcon className="h-3.5 w-3.5" />} tone="sky" />
+                <Metric label="Jumlah Kalimat" value="—" icon={<FileTextIcon className="h-3.5 w-3.5" />} tone="sky" />
                 <Metric label="Waktu" value="—" icon={<Timer className="h-3.5 w-3.5" />} tone="amber" />
               </div>
             </CardContent>
@@ -524,7 +524,7 @@ function ResultCard(props: {
 
         <div className="mb-6 grid grid-cols-3 gap-3">
           <Metric label="Skor Hoaks" value={formatDecimal(hoaxScore)} icon={<Gauge className="h-3.5 w-3.5" />} tone="emerald" />
-          <Metric label="Kalimat Dicek" value={String(sentenceCount)} icon={<FileTextIcon className="h-3.5 w-3.5" />} tone="sky" />
+          <Metric label="Jumlah Kalimat" value={String(sentenceCount)} icon={<FileTextIcon className="h-3.5 w-3.5" />} tone="sky" />
           <Metric label="Waktu (total)" value={formatMs(totalMs)} icon={<Timer className="h-3.5 w-3.5" />} tone="amber" />
         </div>
 
