@@ -51,7 +51,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://127.0.0.1:8000'
 
 const SUPPORTED_DOMAINS = [
   'kompas.com', 'cnnindonesia.com', 'tempo.co', 'detik.com',
-  'liputan6.com', 'tribunnews.com', 'kumparan.com',
+  'liputan6.com', 'tribunnews.com', 'kumparan.com', 'antaranews.com',
 ]
 
 // ---------- utils ----------
